@@ -1,12 +1,12 @@
-name: CI for Next.js
+name: Frontend CI for Next.js
 
 on:
   push:
     branches:
-      - main  # Change this to your dev branch
+      - main  # Change this to your main branch
   pull_request:
     branches:
-      - main  # Change this to your dev branch
+      - main  # Change this to your main branch
 
 jobs:
   deploy:
@@ -21,7 +21,22 @@ jobs:
         with:
           node-version: '18.19.1'  # Specify the Node.js version
 
-      - name: Deploy to EC2
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Next.js App
+        run: npm run build
+
+      - name: Debug EC2 Variables
+        run: |
+          if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then echo "SSH_PRIVATE_KEY is not set"; else echo "SSH_PRIVATE_KEY is set"; fi
+          echo "EC2_HOST is: ${{ secrets.EC2_HOST }}"
+          echo "EC2_USER is: ${{ secrets.EC2_USER }}"
+          echo "Checking if variables are empty..."
+          if [ -z "${{ secrets.EC2_HOST }}" ]; then echo "EC2_HOST is not set"; fi
+          if [ -z "${{ secrets.EC2_USER }}" ]; then echo "EC2_USER is not set"; fi
+
+      - name: Deploy to EC2 (Frontend)
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -29,5 +44,6 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./* $EC2_USER@$EC2_HOST:/path/to/your/next-app
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "cd /path/to/your/next-app && npm install && npm run start"
+          echo "Attempting to connect to $EC2_HOST"
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./* $EC2_USER@$EC2_HOST:/path/to/your/nextjs-frontend
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "cd /path/to/your/nextjs-frontend && npm install && npm run start"
