@@ -3,10 +3,10 @@ name: Frontend CI for Next.js
 on:
   push:
     branches:
-      - main  # Change this to your main branch
+      - main
   pull_request:
     branches:
-      - main  # Change this to your main branch
+      - main
 
 jobs:
   deploy:
@@ -22,9 +22,11 @@ jobs:
           node-version: '18.19.1'  # Specify the Node.js version
 
       - name: Install Dependencies
+        working-directory: ./nextjs_front-master  # Pointing to nextjs_front-master where package.json is located
         run: npm install
 
       - name: Build Next.js App
+        working-directory: ./nextjs_front-master  # Pointing to nextjs_front-master for build
         run: npm run build
 
       - name: Debug EC2 Variables
@@ -45,5 +47,5 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           echo "Attempting to connect to $EC2_HOST"
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./* $EC2_USER@$EC2_HOST:/path/to/your/nextjs-frontend
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./nextjs_front-master/* $EC2_USER@$EC2_HOST:/path/to/your/nextjs-frontend
           ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "cd /path/to/your/nextjs-frontend && npm install && npm run start"
