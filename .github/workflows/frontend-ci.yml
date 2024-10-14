@@ -1,34 +1,32 @@
-name: Frontend CI
+name: CI for Next.js
 
 on:
   push:
     branches:
-      - main
+      - dev  # Change this to your dev branch
   pull_request:
     branches:
-      - main
+      - dev  # Change this to your dev branch
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18.19.1'  
-
-    - name: Install dependencies
-      working-directory: ./nextjs_front-master
-      run: npm install
-
-    # - name: Run tests
-    #   working-directory: ./nextjs_front-master
-    #   run: npm test
-
-    - name: Build application
-      working-directory: ./nextjs_front-master
-      run: npm run build  
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.19.1' 
+      - name: Deploy to EC2
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./* $EC2_USER@$EC2_HOST:/path/to/your/next-app
+          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "cd /path/to/your/next-app && npm install && npm run start"
