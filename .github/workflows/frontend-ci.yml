@@ -3,10 +3,10 @@ name: CI for Next.js
 on:
   push:
     branches:
-      - dev  # Change this to your dev branch
+      - main  # Change this to your dev branch
   pull_request:
     branches:
-      - dev  # Change this to your dev branch
+      - main  # Change this to your dev branch
 
 jobs:
   deploy:
@@ -19,7 +19,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18.19.1' 
+          node-version: '18.19.1'  # Specify the Node.js version
+
       - name: Deploy to EC2
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
