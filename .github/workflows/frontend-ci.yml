@@ -22,7 +22,7 @@ jobs:
           node-version: '18.19.1'  # Specify the Node.js version
 
       - name: Install Dependencies
-        working-directory: ./nextjs_front-master  # Pointing to nextjs_front-master where package.json is located
+        working-directory: ./nextjs_front-master  
         run: npm install
 
       # - name: Build Next.js App
