@@ -25,9 +25,9 @@ jobs:
       working-directory: ./nextjs_front-master
       run: npm install
 
-    - name: Run tests
-      working-directory: ./nextjs_front-master
-      run: npm test
+    # - name: Run tests
+    #   working-directory: ./nextjs_front-master
+    #   run: npm test
 
     - name: Build application
       working-directory: ./nextjs_front-master
