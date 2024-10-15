@@ -1,51 +1,56 @@
-name: Frontend CI for Next.js
+name: Deploy to AWS EC2
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - main  # This will trigger the action on pushes to the main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          node-version: '18.19.1'  # Specify the Node.js version
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Install Dependencies
-        working-directory: ./nextjs_front-master  
-        run: npm install
-
-      # - name: Build Next.js App
-      #   working-directory: ./nextjs_front-master  
-      #   run: npm run build
-
-      - name: Debug EC2 Variables
+      - name: Add EC2 Host to known_hosts
         run: |
-          if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then echo "SSH_PRIVATE_KEY is not set"; else echo "SSH_PRIVATE_KEY is set"; fi
-          echo "EC2_HOST is: ${{ secrets.EC2_HOST }}"
-          echo "EC2_USER is: ${{ secrets.EC2_USER }}"
-          echo "Checking if variables are empty..."
-          if [ -z "${{ secrets.EC2_HOST }}" ]; then echo "EC2_HOST is not set"; fi
-          if [ -z "${{ secrets.EC2_USER }}" ]; then echo "EC2_USER is not set"; fi
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 13.60.199.116 >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2 (Frontend)
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
+      - name: Deploy to EC2
         run: |
-          echo "$SSH_PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
-          echo "Attempting to connect to $EC2_HOST"
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./nextjs_front-master/* $EC2_USER@$EC2_HOST:/path/to/your/nextjs-frontend
-          ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST "cd /path/to/your/nextjs-frontend && npm install && npm run start"
+          ssh ubuntu@13.60.199.116 << 'EOF'
+          set -x  # Enable debugging
+          
+          # Check if the directory exists; if not, clone the repository
+          if [ ! -d "/var/www/dev-app/front" ]; then
+            git clone https://github.com/isslemziedi/FrontEnd_PI_S0 /var/www/dev-app/front
+          fi
+
+          # Navigate to the application directory
+          cd /var/www/dev-app/front
+
+          # Pull the latest changes
+          git pull origin main
+
+          # Install dependencies (if using npm)
+          npm install
+
+          # Build the Next.js app
+          npm run build
+
+          # Start the Next.js server in the background
+          nohup npm start > /var/www/dev-app/front/logs.log 2>&1 &
+          EOF
+
+      - name: Reload Nginx
+        run: |
+          ssh ubuntu@13.60.199.116 << 'EOF'
+          sudo systemctl reload nginx
+          EOF
