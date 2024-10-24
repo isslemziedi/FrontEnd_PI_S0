@@ -2,8 +2,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
+import { useLanguage } from 'i18n/LanguageContext';
 
 export default function ForgotPassword() {
+  const{ t } = useLanguage();
   const [email, setEmail] = useState('');
   const [error, setError] = useState(''); 
   const [successMessage, setSuccessMessage] = useState(''); 
@@ -41,7 +43,7 @@ export default function ForgotPassword() {
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="bg-white p-8 rounded-lg w-full max-w-3xl">
-        <h1 className="text-3xl font-semibold text-center mb-10">Forgot Password</h1>
+        <h1 className="text-3xl font-semibold text-center mb-10">{t('common.forgotPassword')}</h1>
 
         {successMessage && (
           <div className="mb-4 p-3 text-black bg-[#B8EBC8] rounded-lg text-center">
@@ -70,18 +72,18 @@ export default function ForgotPassword() {
             onClick={handleSendCode}
             className="w-full bg-black text-white p-3 rounded-lg hover:bg-gray-800 transition duration-300"
           >
-            Send Reset Code
+            {t('common.sendRequestCode')}
           </button>
         </form>
 
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
-            Remember your password?{' '}
+          {t('common.rememberYourPassword')}{' '}
             <a
               onClick={handleGoBack}
               className="text-blue-500 hover:underline cursor-pointer"
             >
-              Sign In
+              {t('common.signin')}
             </a>
           </p>
         </div>

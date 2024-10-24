@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useLanguage } from 'i18n/LanguageContext'; // Assurez-vous d'importer le contexte de langue
 
 export default function VerifyCode() {
+  const { t } = useLanguage();
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [correctCode, setCorrectCode] = useState('');
   const [email, setEmail] = useState('');
@@ -22,35 +24,34 @@ export default function VerifyCode() {
       setEmail(storedEmail);
       setResendAttempts(storedAttempts);
 
-      // Calculate the remaining cooldown time
       const currentTime = Math.floor(Date.now() / 1000);
       const remainingTime = storedCooldown - currentTime;
 
       if (remainingTime > 0) {
         setCooldown(remainingTime);
         const timerId = setInterval(() => {
-          setCooldown(prev => {
+          setCooldown((prev) => {
             if (prev <= 1) {
               clearInterval(timerId);
-              return 0; // Reset cooldown
+              return 0;
             }
             return prev - 1;
           });
         }, 1000);
 
-        return () => clearInterval(timerId); // Cleanup on unmount
+        return () => clearInterval(timerId);
       }
     } else {
-      router.push('/send-verification-code'); // Redirect if no email or code is found
+      router.push('/send-verification-code');
     }
   }, [router]);
 
   const handleVerifyCode = () => {
     const inputCode = code.join('');
     if (inputCode === correctCode) {
-      router.push('/reset-password'); // Navigate to reset password page
+      router.push('/reset-password');
     } else {
-      alert('Incorrect verification code. Please try again.');
+      alert(t('common.incorrectVerificationCode'));
     }
   };
 
@@ -68,30 +69,26 @@ export default function VerifyCode() {
 
   const handleResendCode = () => {
     if (resendAttempts > 0) {
-      // Generate a new verification code
       const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-      setCorrectCode(newCode); // Update the correct code state
-      localStorage.setItem('verificationCode', newCode); // Update local storage
+      setCorrectCode(newCode);
+      localStorage.setItem('verificationCode', newCode);
 
-      alert(`A new verification code has been sent to ${email}.`);
+      alert(`${t('common.newCodeSent')} ${email}.`);
 
-      // Update resend attempts
       const newAttempts = resendAttempts - 1;
       setResendAttempts(newAttempts);
       localStorage.setItem(`${email}_resendAttempts`, newAttempts);
 
-      // If attempts reach 0, start cooldown
       if (newAttempts === 0) {
-        const cooldownEndTime = Math.floor(Date.now() / 1000) + 3600; // Set cooldown for 1 hour
+        const cooldownEndTime = Math.floor(Date.now() / 1000) + 3600;
         setCooldown(3600);
         localStorage.setItem(`${email}_cooldown`, cooldownEndTime);
       }
     } else {
-      alert('You have exhausted your resend attempts. Please wait for cooldown to reset.');
+      alert(t('common.exhaustedAttempts'));
     }
   };
 
-  // Timer display
   const formatCooldown = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -101,9 +98,11 @@ export default function VerifyCode() {
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="bg-white p-8 rounded-lg w-full max-w-xl">
-        <h1 className="text-3xl font-semibold text-center mb-3">Enter Verification Code</h1>
+        <h1 className="text-3xl font-semibold text-center mb-3">
+          {t('common.enterVerificationCode')}
+        </h1>
         <h4 className="text-sm font-normal text-center mb-4 text-grey">
-          We've sent a 6-digit code to your email
+          {t('common.codeSentMessage')}
         </h4>
 
         <div className="flex justify-center mb-4">
@@ -127,26 +126,28 @@ export default function VerifyCode() {
           onClick={handleVerifyCode}
           className="w-full bg-black text-white p-3 rounded-lg mb-4"
         >
-          Verify Code
+          {t('common.verifyCode')}
         </button>
 
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
-            Didn't get the code?{' '}
+            {t('common.didntGetCode')}{' '}
             <button
               onClick={handleResendCode}
-              className={`text-blue-500 hover:underline cursor-pointer ${cooldown > 0 ? 'disabled' : ''}`}
+              className={`text-blue-500 hover:underline cursor-pointer ${
+                cooldown > 0 ? 'disabled' : ''
+              }`}
               disabled={cooldown > 0}
             >
-              Resend Code
+              {t('common.resendCode')}
             </button>
           </p>
           <p className="text-sm text-gray-600">
-            Resend attempts left: {resendAttempts}
+            {t('common.resendAttemptsLeft')}: {resendAttempts}
           </p>
           {cooldown > 0 && (
             <p className="text-red-500">
-              Please wait {formatCooldown(cooldown)} before resending.
+              {t('common.waitBeforeResending')} {formatCooldown(cooldown)}
             </p>
           )}
         </div>

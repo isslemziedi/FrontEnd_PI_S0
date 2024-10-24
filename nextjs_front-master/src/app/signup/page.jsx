@@ -2,8 +2,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'; 
+import { useLanguage } from 'i18n/LanguageContext';
 
 export default function SignUp() {
+  const { t } = useLanguage();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -69,12 +71,12 @@ export default function SignUp() {
     
   <div className="flex items-center justify-center h-screen bg-white">
     <div className="bg-white p-3 rounded-lg w-full max-w-3xl">
-      <h1 className="text-3xl font-semibold text-center mb-10 mt-0">Sign Up</h1>
+      <h1 className="text-3xl font-semibold text-center mb-10 mt-0">{t('common.signup')}</h1>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-              First Name
+            {t('common.firstName')}
             </label>
             <input
               type="text"
@@ -89,7 +91,7 @@ export default function SignUp() {
 
           <div>
             <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-              Last Name
+            {t('common.lastName')}
             </label>
             <input
               type="text"
@@ -121,7 +123,7 @@ export default function SignUp() {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
+            {t('common.password')}
             </label>
             <input
               type="password"
@@ -155,12 +157,12 @@ export default function SignUp() {
           onClick={handleSignUp}
           className="w-full bg-black text-white p-3 rounded-lg"
         >
-          Sign Up
+          {t('common.signup')}
         </button>
 
         <p className="text-center text-sm text-blue-500 mt-4">
           <a href="/signin" className="text-blue-500 hover:underline">
-            Already have an account? Sign In
+          {t('common.alreadyHaveAccount')} {t('common.signin')}
           </a>
         </p>
       </div>

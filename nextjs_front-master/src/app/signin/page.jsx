@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useLanguage } from 'i18n/LanguageContext';
 
 export default function SignIn() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -70,11 +72,11 @@ export default function SignIn() {
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="bg-white p-8 rounded-lg w-full max-w-3xl">
-        <h1 className="text-3xl font-semibold text-center mb-10">Sign In</h1>
+        <h1 className="text-3xl font-semibold text-center mb-10">{t('common.signin')}</h1>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              {t('Email')}
             </label>
             <input
               type="email"
@@ -89,7 +91,7 @@ export default function SignIn() {
           </div>
           <div className="mb-6">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
+              {t('common.password')}
             </label>
             <input
               type="password"
@@ -107,19 +109,19 @@ export default function SignIn() {
             onClick={handleSubmit}
             className="w-full bg-black text-white p-3 rounded-lg hover:bg-gray-800 transition duration-300"
           >
-            Sign In
+            {t('common.signin')}
           </button>
         </form>
 
         <p className="text-center text-sm text-blue-500 mt-4">
           <a href="/forgot-password" className="text-blue-500 hover:underline">
-            Forgot Password?
+          {t('common.forgotPassword')}
           </a>
         </p>
 
         <p className="text-center text-sm text-blue-500 mt-4">
           <a href="/signup" className="text-blue-500 hover:underline">
-            Don't have an account? Sign Up
+             {t('common.dontHaveAccount')} {t('common.signin')}
           </a>
         </p>
       </div>

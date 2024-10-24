@@ -1,97 +1,99 @@
-// src/app/reset-password/page.jsx
-'use client';  // Important: ceci marque le composant comme un Client Component
+'use client'; // Important: ceci marque le composant comme un Client Component
 import 'bootstrap/dist/css/bootstrap.min.css'; // Importation de Bootstrap
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from 'i18n/LanguageContext'; // Importation du contexte de langue
 
 export default function ResetPassword() {
+  const { t } = useLanguage(); // Utilisation du hook de langue
   const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); // État pour le mot de passe de confirmation
-  const [error, setError] = useState(''); // État pour les messages d'erreur
-  const [successMessage, setSuccessMessage] = useState(''); // État pour le message de succès
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const router = useRouter();
 
   const handleResetPassword = () => {
-    setError(''); // Réinitialiser le message d'erreur à chaque tentative de réinitialisation
-    setSuccessMessage(''); // Réinitialiser le message de succès
+    setError('');
+    setSuccessMessage('');
 
     if (!newPassword || !confirmPassword) {
-      setError('Please enter a new password and confirm it.'); // Met à jour le message d'erreur
+      setError(t('common.enterNewPassword')); // Message traduit
       return;
     }
 
     if (newPassword.length < 8) {
-      setError('Password must be 8 characters.'); // Met à jour le message d'erreur pour le mot de passe
+      setError(t('common.passwordLengthError')); // Message traduit
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match. Please try again.'); // Met à jour le message d'erreur pour les mots de passe non correspondants
+      setError(t('common.passwordMismatch')); // Message traduit
       return;
     }
 
-    // Simule la mise à jour du mot de passe
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
-      user.password = newPassword; // Met à jour le mot de passe
+      user.password = newPassword;
       localStorage.setItem('user', JSON.stringify(user));
-      setSuccessMessage('Your password has been reset successfully!'); // Met à jour le message de succès
+      setSuccessMessage(t('common.passwordResetSuccess')); // Message traduit
       setTimeout(() => {
-        router.push('/pwd-reset-successfully'); // Redirige vers la page de connexion après un délai
-      }, 2000); // Délai de 2 secondes
+        router.push('/pwd-reset-successfully');
+      }, 2000);
     }
   };
 
   return (
     <div className="flex items-center justify-center h-screen bg-white">
       <div className="bg-white p-8 rounded-lg w-full max-w-2xl">
-        <h1 className="text-3xl font-semibold text-center mb-10">Set New Password</h1>
+        <h1 className="text-3xl font-semibold text-center mb-10">
+          {t('common.setNewPassword')} 
+        </h1>
 
         {successMessage && (
           <div className="mb-4 p-3 text-black bg-[#B8EBC8] rounded-lg text-center">
             {successMessage}
           </div>
         )}
-        
+
         <div className="mb-4">
-          <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2"> 
-            New Password
+          <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            {t('common.newPassword')}
           </label>
           <input
             type="password"
             id="newPassword"
             className="w-full p-3 border border-gray-300 rounded-lg"
-            placeholder='Enter new password'
+            placeholder={t('common.enterNewPassword')}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
           />
           {newPassword.length < 8 && newPassword.length > 0 && (
-            <p className="text-red-500 text-sm">Password must be 8 characters.</p>
+            <p className="text-red-500 text-sm">{t('common.passwordLengthError')}</p>
           )}
           {newPassword.length >= 8 && (
-            <p className="text-green-500 text-sm">Password length is valid.</p>
+            <p className="text-green-500 text-sm">{t('common.passwordValid')}</p>
           )}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2"> 
-            Confirm Password
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            {t('common.confirmPassword')}
           </label>
           <input
             type="password"
             id="confirmPassword"
             className="w-full p-3 border border-gray-300 rounded-lg"
-            placeholder='Confirm new password'
+            placeholder={t('common.confirmPassword')}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
           {confirmPassword.length > 0 && newPassword !== confirmPassword && (
-            <p className="text-red-500 text-sm">Passwords do not match.</p>
+            <p className="text-red-500 text-sm">{t('common.passwordMismatch')}</p>
           )}
           {confirmPassword.length > 0 && newPassword === confirmPassword && (
-            <p className="text-green-500 text-sm">Passwords match.</p>
+            <p className="text-green-500 text-sm">{t('common.passwordMatch')}</p>
           )}
         </div>
 
@@ -100,7 +102,7 @@ export default function ResetPassword() {
           onClick={handleResetPassword}
           className="w-full bg-black text-white p-3 rounded-lg"
         >
-          Reset Password
+          {t('common.resetPassword')}
         </button>
 
         {error && (
