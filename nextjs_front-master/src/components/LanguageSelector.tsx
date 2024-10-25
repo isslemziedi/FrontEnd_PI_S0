@@ -9,7 +9,7 @@ const LanguageSelector = () => {
 
   return (
     <Select value={language} onValueChange={setLanguage}>
-      <SelectTrigger className="w-24">
+      <SelectTrigger className="w-24 ">
         <SelectValue placeholder="Language" />
       </SelectTrigger>
       <SelectContent>
